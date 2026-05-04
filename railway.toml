@@ -1,0 +1,7 @@
+[build]
+builder = "nixpacks"
+
+[deploy]
+startCommand = "cd backend && python manage.py migrate --no-input && python manage.py collectstatic --no-input && PYTHONPATH=.. gunicorn config.wsgi --workers 2 --timeout 120"
+healthcheckPath = "/"
+restartPolicyType = "ON_FAILURE"

@@ -14,6 +14,8 @@ export const Route = createFileRoute("/register")({
   head: () => ({ meta: [{ title: "Create account — ClaimGuard AI" }] }),
 });
 
+const IS_PROD = Boolean(import.meta.env.VITE_BACKEND_URL);
+
 function RegisterPage() {
   const { register } = useAuth();
   const navigate = useNavigate();
@@ -25,7 +27,7 @@ function RegisterPage() {
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setBackendUrl(backend);
+    if (!IS_PROD) setBackendUrl(backend);
     setLoading(true);
     try {
       await register(username.trim(), email.trim(), password);
@@ -65,10 +67,12 @@ function RegisterPage() {
               <Label htmlFor="password">Password</Label>
               <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
             </div>
-            <details className="rounded-md border border-border/60 bg-muted/40 p-3 text-xs">
-              <summary className="cursor-pointer text-muted-foreground">Backend URL</summary>
-              <Input value={backend} onChange={(e) => setBackend(e.target.value)} className="mt-2" />
-            </details>
+            {!IS_PROD && (
+              <details className="rounded-md border border-border/60 bg-muted/40 p-3 text-xs">
+                <summary className="cursor-pointer text-muted-foreground">Backend URL (dev only)</summary>
+                <Input value={backend} onChange={(e) => setBackend(e.target.value)} className="mt-2" />
+              </details>
+            )}
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Creating..." : "Create account"}
             </Button>

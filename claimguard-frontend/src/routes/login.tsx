@@ -14,6 +14,9 @@ export const Route = createFileRoute("/login")({
   head: () => ({ meta: [{ title: "Sign in — ClaimGuard AI" }] }),
 });
 
+// Show the backend URL field only in local dev (when VITE_BACKEND_URL is not baked in)
+const IS_PROD = Boolean(import.meta.env.VITE_BACKEND_URL);
+
 function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -24,7 +27,7 @@ function LoginPage() {
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setBackendUrl(backend);
+    if (!IS_PROD) setBackendUrl(backend);
     setLoading(true);
     try {
       await login(identifier.trim(), password);
@@ -75,15 +78,17 @@ function LoginPage() {
                 autoComplete="current-password"
               />
             </div>
-            <details className="rounded-md border border-border/60 bg-muted/40 p-3 text-xs">
-              <summary className="cursor-pointer text-muted-foreground">Backend URL</summary>
-              <Input
-                value={backend}
-                onChange={(e) => setBackend(e.target.value)}
-                className="mt-2"
-                placeholder="http://127.0.0.1:8000"
-              />
-            </details>
+            {!IS_PROD && (
+              <details className="rounded-md border border-border/60 bg-muted/40 p-3 text-xs">
+                <summary className="cursor-pointer text-muted-foreground">Backend URL (dev only)</summary>
+                <Input
+                  value={backend}
+                  onChange={(e) => setBackend(e.target.value)}
+                  className="mt-2"
+                  placeholder="http://127.0.0.1:8000"
+                />
+              </details>
+            )}
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Signing in..." : "Sign in"}
             </Button>
